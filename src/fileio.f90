@@ -5,7 +5,7 @@ module fileio
     implicit none
 
     private
-    public :: fopen, fclose, fread, fwrite
+    public :: fopen, fclose, fread, fwrite, reset_record
 
 
     type finfo
@@ -70,8 +70,8 @@ module fileio
             write(*,'(a)')    'ValueError ----------------------------------------------------'
             write(*,'(a)')    '|   Invalid argument : Value of recl must be more than 0'
             write(*,'(a)')    '|'
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -83,8 +83,8 @@ module fileio
             write(*,'(a)')    'ValueError ----------------------------------------------------'
             write(*,'(a)')    '|   Invalid argument : Value of record must be more than 0'
             write(*,'(a)')    '|'
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -96,8 +96,8 @@ module fileio
             write(*,'(a)')    'ValueError ----------------------------------------------------'
             write(*,'(a)')    '|   Invalid argument : Value of recstep must be more than 0'
             write(*,'(a)')    '|'
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -177,8 +177,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -200,8 +200,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -223,8 +223,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -246,8 +246,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -269,8 +269,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -292,8 +292,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -315,8 +315,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -338,8 +338,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -361,8 +361,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -384,8 +384,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -407,8 +407,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -430,8 +430,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -453,8 +453,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -476,8 +476,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -499,8 +499,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -522,8 +522,8 @@ module fileio
         if (isNaN(carrier)) then
             write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ', trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
@@ -531,6 +531,25 @@ module fileio
         endif
 
     end subroutine fwrite3d_d
+
+
+    subroutine reset_record(ftype, newrecord, recstep)
+        type(finfo), intent(inout) :: ftype
+        integer    , intent(in), optional :: newrecord
+        integer    , intent(in), optional :: recstep
+
+        if (present(newrecord)) then
+            ftype%record = newrecord
+            return
+        else if (present(recstep) then
+            ftype%record = ftype%record + recstep
+            return
+        else
+            write(*,'(a)')    'ArgumentError -------------------------------------------------'
+            write(*,'(a)')    '|   newrecord or recstep is needed for reset_record'
+            write(*,'(a)')    '---------------------------------------------------------------'
+
+    end subroutine reset_record
 
 
     subroutine check_opened(ftype)
@@ -543,12 +562,12 @@ module fileio
 
         if (.NOT. opened) then
             write(*,*)
-            write(*,'(a)')    'ReadError -------------------------------------------------'
+            write(*,'(a)')    'ReadError -----------------------------------------------------'
             write(*,'(a)')    '|   File is not opened'
             write(*,'(a)')    '|'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
             write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ', trim(ftype%action)
+            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
             write(*,'(a,i0)') '|   Recl     : ', ftype%recl
             write(*,'(a,i0)') '|   Record   : ', ftype%record
             write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
