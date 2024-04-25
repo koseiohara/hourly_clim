@@ -5,7 +5,7 @@ module fileio
     implicit none
 
     private
-    public :: fopen, fclose, fread, fwrite, reset_record
+    public :: finfo, fopen, fclose, fread, fwrite, reset_record
 
 
     type finfo
@@ -92,9 +92,9 @@ module fileio
             ERROR STOP
         endif
 
-        if (recstep <= 0) then
+        if (recstep < 0) then
             write(*,'(a)')    'ValueError ----------------------------------------------------'
-            write(*,'(a)')    '|   Invalid argument : Value of recstep must be more than 0'
+            write(*,'(a)')    '|   Invalid argument : Value of recstep must be equal or more than 0'
             write(*,'(a)')    '|'
             write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
             write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
@@ -541,13 +541,14 @@ module fileio
         if (present(newrecord)) then
             ftype%record = newrecord
             return
-        else if (present(recstep) then
+        else if (present(recstep)) then
             ftype%record = ftype%record + recstep
             return
         else
             write(*,'(a)')    'ArgumentError -------------------------------------------------'
             write(*,'(a)')    '|   newrecord or recstep is needed for reset_record'
             write(*,'(a)')    '---------------------------------------------------------------'
+        endif
 
     end subroutine reset_record
 

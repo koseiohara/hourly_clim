@@ -1,6 +1,6 @@
 module clim_stand_norm
 
-    use fileio , only : fopen, fclose, fread, fwrite, reset_record
+    use fileio , only : finfo, fopen, fclose, fread, fwrite, reset_record
     use globals, only : kp, nx, ny, nz                              , &
                       & year_ini, year_fin, yearnum, varnum         , &
                       & input_initialRecord, input_fname, clim_fname
@@ -9,7 +9,10 @@ module clim_stand_norm
     implicit none
 
     private
-    public ::
+    public :: mean_all
+
+
+    integer :: debugUnit
 
     contains
 
@@ -50,8 +53,8 @@ module clim_stand_norm
     end subroutine mean_all
 
 
-    subroutine mean_before_leap(input_ftype, clim_file)
-        type(finfo), intent(inout) :: input_ftype
+    subroutine mean_before_leap(input_file, clim_file)
+        type(finfo), intent(inout) :: input_file
         type(finfo), intent(inout) :: clim_file
         
         real(kp) :: reader(nx,ny,nz)
@@ -107,8 +110,8 @@ module clim_stand_norm
     end subroutine mean_before_leap
 
 
-    subroutine mean_in_leap(input_ftype, clim_file)
-        type(finfo), intent(inout) :: input_ftype
+    subroutine mean_leap(input_file, clim_file)
+        type(finfo), intent(inout) :: input_file
         type(finfo), intent(inout) :: clim_file
 
         real(kp) :: reader(nx,ny,nz)
@@ -135,7 +138,7 @@ module clim_stand_norm
 
             do yearcounter = year_ini, year_fin
 
-                if (isLeap(yearcounter) then
+                if (isLeap(yearcounter)) then
                     
                     call fread(input_file          , &
                              & reader(1:nx,1:ny,1:nz))
@@ -167,11 +170,11 @@ module clim_stand_norm
 
         enddo
 
-    end subroutine mean_in_leap
+    end subroutine mean_leap
 
 
-    subroutine mean_after_leap(input_ftype, clim_file)
-        type(finfo), intent(inout) :: input_ftype
+    subroutine mean_after_leap(input_file, clim_file)
+        type(finfo), intent(inout) :: input_file
         type(finfo), intent(inout) :: clim_file
         
         real(kp) :: reader(nx,ny,nz)
@@ -226,6 +229,48 @@ module clim_stand_norm
         enddo
 
     end subroutine mean_after_leap
+
+
+    subroutine debug_open()
+        character(128), parameter :: debugFile = '../output/Debugger.txt'
+        integer :: stat
+
+        open(newunit=debugUnit, file=debugFile, action='write', iostat=stat)
+        if (stat/=0) then
+            write(*,'(a)')    'OpenFileError --------------------------------------------------'
+            write(*,'(a)')    '|   Failed to open file'
+            write(*,'(a)')    '|'
+            write(*,'(a,i0)') '|   Unit     : ', debugUnit
+            write(*,'(a)')    '|   FileName : ' // trim(debugFile)
+            write(*,'(a)')    '|   Action   : write'
+            write(*,'(a)')    '----------------------------------------------------------------'
+
+            ERROR STOP
+        endif
+
+    end subroutine debug_open
+
+
+    subroutine debug_reclist(record)
+        integer, intent(in) :: record
+
+        write(debugUnit,'(i7)',advance='no') record
+
+    end subroutine debug_reclist
+
+
+    subroutine debug_linebreak()
+
+        write(debugUnit,*)
+
+    end subroutine debug_linebreak
+
+
+    subroutine debug_close()
+    
+        close(debugUnit)
+
+    end subroutine debug_close
 
 
 end module clim_stand_norm
