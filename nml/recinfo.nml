@@ -1,0 +1,5 @@
+&recinfo
+    varnum = 57
+    input_initialRecord = 5
+&end
+

@@ -13,10 +13,13 @@ ${EXE} : ${OBJS}
 	${FC} -o $@ $^
 
 
-.PHONY : clean re
+.PHONY : clean re run
 
 clean :
 	@ rm -fv *.o *.mod ${EXE}
 
 re : clean all
+
+run :
+	./${EXE}
 

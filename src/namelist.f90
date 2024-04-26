@@ -1,8 +1,8 @@
 module namelist
 
-    use globals, only : nx, ny, nz                 , &
-                      & year_ini, year_fin, yearnum, &
-                      & varnum, input_initialRecord, &
+    use globals, only : nx, ny, nz                          , &
+                      & year_ini, year_fin, yearnum, hournum, &
+                      & varnum, input_initialRecord         , &
                       & input_fname, clim_fname
 
     implicit none
@@ -14,17 +14,19 @@ module namelist
 
 
     subroutine read_nml()
+        integer :: hourstep
+
         integer :: grid_unit
-        integer :: yearinfo_unit
+        integer :: tinfo_unit
         integer :: recinfo_unit
         integer :: files_unit
         character(128), parameter :: grid_fname='../nml/grid.nml'
-        character(128), parameter :: yearinfo_fname='../nml/yearinfo.nml'
+        character(128), parameter :: tinfo_fname='../nml/tinfo.nml'
         character(128), parameter :: recinfo_fname='../nml/recinfo.nml'
         character(128), parameter :: files_fname='../nml/files.nml'
 
         namelist / grid / nx, ny, nz
-        namelist / yearinfo / year_ini, year_fin
+        namelist / tinfo / year_ini, year_fin, hourstep
         namelist / recinfo / varnum, input_initialRecord
         namelist / files / input_fname, clim_fname
 
@@ -34,6 +36,7 @@ module namelist
 
         year_ini = 0
         year_fin = 0
+        hourstep = 0
 
         varnum              = 0
         input_initialRecord = 0
@@ -45,8 +48,8 @@ module namelist
         call open_nml(grid_unit, &  !! OUT
                     & grid_fname )  !! IN
         
-        call open_nml(yearinfo_unit, &  !! OUT
-                    & yearinfo_fname )  !! IN
+        call open_nml(tinfo_unit, &  !! OUT
+                    & tinfo_fname )  !! IN
         
         call open_nml(recinfo_unit, &  !! OUT
                     & recinfo_fname )  !! IN
@@ -54,19 +57,20 @@ module namelist
         call open_nml(files_unit, &  !! OUT
                     & files_fname )  !! IN
 
-        read(grid_unit    , nml=grid    )
-        read(yearinfo_unit, nml=yearinfo)
-        read(recinfo_unit , nml=recinfo )
-        read(files_unit   , nml=files   )
+        read(grid_unit    , nml=grid   )
+        read(tinfo_unit, nml=tinfo     )
+        read(recinfo_unit , nml=recinfo)
+        read(files_unit   , nml=files  )
 
         close(grid_unit    )
-        close(yearinfo_unit)
+        close(tinfo_unit)
         close(recinfo_unit )
         close(files_unit   )
 
-        call checker()
+        call checker(hourstep)
         
         yearnum = year_fin - year_ini + 1
+        hournum = 24 / hourstep
 
     end subroutine read_nml
 
@@ -92,7 +96,8 @@ module namelist
     end subroutine open_nml
 
 
-    subroutine checker()
+    subroutine checker(hourstep)
+        integer, intent(in) :: hourstep
         
         if (nx <= 0) then
             write(*,'(a)')    'InputError ---------------------------------------------'
@@ -150,6 +155,16 @@ module namelist
             write(*,'(a)')    '|   year_fin must be equal or more than year_ini'
             write(*,'(a,i0)') '|   Input : year_ini=', year_ini
             write(*,'(a,i0)') '|   Input : year_fin=', year_fin
+            write(*,'(a)')    '--------------------------------------------------------'
+            
+            ERROR STOP
+        endif
+
+        if (hourstep <= 0 .or. hourstep > 24) then
+            write(*,'(a)')    'InputError ---------------------------------------------'
+            write(*,'(a)')    '|   Invalid hourstep value in namelist'
+            write(*,'(a)')    '|   hourstep must be between 1 and 24'
+            write(*,'(a,i0)') '|   Input : hourstep=', hourstep
             write(*,'(a)')    '--------------------------------------------------------'
             
             ERROR STOP

@@ -1,0 +1,6 @@
+&tinfo
+    year_ini = 1970
+    year_fin = 2022
+    hourstep = 6
+&end
+

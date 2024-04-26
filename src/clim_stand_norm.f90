@@ -1,9 +1,9 @@
 module clim_stand_norm
 
     use fileio , only : finfo, fopen, fclose, fread, fwrite, reset_record
-    use globals, only : kp, nx, ny, nz                              , &
-                      & year_ini, year_fin, yearnum, varnum         , &
-                      & input_initialRecord, input_fname, clim_fname
+    use globals, only : kp, nx, ny, nz                                    , &
+                      & year_ini, year_fin, yearnum, hournum              , &
+                      & varnum, input_initialRecord, input_fname, clim_fname
     use leapYear, only : isLeap
 
     implicit none
@@ -21,6 +21,7 @@ module clim_stand_norm
         type(finfo) :: input_file
         type(finfo) :: clim_file
 
+        call debug_open()
         
         call fopen(input_file                 , &  !! OUT
                  & fname  =input_fname        , &  !! IN
@@ -40,11 +41,11 @@ module clim_stand_norm
         call mean_before_leap(input_file, &  !! INOUT
                             &  clim_file  )  !! INOUT
 
-        call mean_leap(input_file, &  !! INOUT
-                     &  clim_file  )  !! INOUT
+        call mean_leap(       input_file, &  !! INOUT
+                            &  clim_file  )  !! INOUT
 
-        call mean_after_leap(input_file, &  !! INOUT
-                           &  clim_file  )  !! INOUT
+        call mean_after_leap( input_file, &  !! INOUT
+                            &  clim_file  )  !! INOUT
 
 
         call fclose(input_file)  !! INOUT
@@ -60,9 +61,9 @@ module clim_stand_norm
         real(kp) :: reader(nx,ny,nz)
         real(kp) :: clim(nx,ny,nz)
 
-        integer, parameter :: hournum_per_day = 4
+        !integer, parameter :: hournum_per_day = 4
         integer, parameter :: daynum_before_leap = 31+28
-        integer, parameter :: hournum_before_leap = daynum_before_leap * hournum_per_day
+        integer :: hournum_before_leap
         integer :: hourcounter
         integer :: yearcounter
 
@@ -73,6 +74,8 @@ module clim_stand_norm
         integer :: rec_ini
 
 
+        hournum_before_leap = daynum_before_leap * hournum
+
         do hourcounter = 1, hournum_before_leap
 
             rec_ini = input_file%record
@@ -80,8 +83,10 @@ module clim_stand_norm
 
             do yearcounter = year_ini, year_fin
 
-                call fread(input_file          , &  !! INOUT
-                         & reader(1:nx,1:ny,1:nz))  !! OUT
+                call debug_reclist(input_file%record)
+
+                !call fread(input_file          , &  !! INOUT
+                !         & reader(1:nx,1:ny,1:nz))  !! OUT
 
                 clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
 
@@ -90,7 +95,7 @@ module clim_stand_norm
                 else
                     days2next = 365
                 endif
-                hours2next = days2next * hournum_per_day
+                hours2next = days2next * hournum
                 record2next = hours2next * varnum
 
                 call reset_record(input_file       , &  !! INOUT
@@ -98,9 +103,11 @@ module clim_stand_norm
 
             enddo
 
+            call debug_linebreak()
+
             clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(yearnum, kind=kp)
-            call fwrite(clim_file         , &  !! INOUT
-                      & clim(1:nx,1:ny,1:nz))  !! IN
+            !call fwrite(clim_file         , &  !! INOUT
+            !          & clim(1:nx,1:ny,1:nz))  !! IN
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
@@ -117,7 +124,7 @@ module clim_stand_norm
         real(kp) :: reader(nx,ny,nz)
         real(kp) :: clim(nx,ny,nz)
 
-        integer, parameter :: hournum = 4
+        !integer, parameter :: hournum = 4
         integer :: hourcounter
         integer :: yearcounter
 
@@ -140,8 +147,10 @@ module clim_stand_norm
 
                 if (isLeap(yearcounter)) then
                     
-                    call fread(input_file          , &
-                             & reader(1:nx,1:ny,1:nz))
+                    call debug_reclist(input_file%record)
+
+                    !call fread(input_file          , &
+                    !         & reader(1:nx,1:ny,1:nz))
 
                     clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
                     leapNum = leapNum + 1
@@ -150,9 +159,13 @@ module clim_stand_norm
 
                 else
 
+                    call debug_reclist(0)
+
                     days2next = 365
 
                 endif
+                !days2next = 366
+
                 hours2next = days2next * hournum
                 record2next = hours2next * varnum
 
@@ -161,14 +174,21 @@ module clim_stand_norm
 
             enddo
 
+            call debug_linebreak()
+
             clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(leapNum, kind=kp)
-            call fwrite(clim_file         , &  !! INOUT
-                      & clim(1:nx,1:ny,1:nz))  !! IN
+            !call fwrite(clim_file         , &  !! INOUT
+            !          & clim(1:nx,1:ny,1:nz))  !! IN
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
 
         enddo
+
+        if (.NOT. isLeap(year_ini)) then
+            call reset_record(input_file           , &  !! INOUT
+                            & recstep=-hournum*varnum)  !! IN
+        endif
 
     end subroutine mean_leap
 
@@ -180,10 +200,11 @@ module clim_stand_norm
         real(kp) :: reader(nx,ny,nz)
         real(kp) :: clim(nx,ny,nz)
 
-        integer, parameter :: hournum_per_day = 4
+        !integer, parameter :: hournum_per_day = 4
                                                !! MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC
         integer, parameter :: daynum_before_leap = 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30 + 31
-        integer, parameter :: hournum_before_leap = daynum_before_leap * hournum_per_day
+        !integer, parameter :: hournum_before_leap = daynum_before_leap * hournum_per_day
+        integer :: hournum_before_leap
         integer :: hourcounter
         integer :: yearcounter
 
@@ -193,6 +214,7 @@ module clim_stand_norm
 
         integer :: rec_ini
 
+        hournum_before_leap = daynum_before_leap * hournum
 
         do hourcounter = 1, hournum_before_leap
 
@@ -201,8 +223,10 @@ module clim_stand_norm
 
             do yearcounter = year_ini, year_fin
 
-                call fread(input_file          , &  !! INOUT
-                         & reader(1:nx,1:ny,1:nz))  !! OUT
+                call debug_reclist(input_file%record)
+
+                !call fread(input_file          , &  !! INOUT
+                !         & reader(1:nx,1:ny,1:nz))  !! OUT
 
                 clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
 
@@ -211,7 +235,7 @@ module clim_stand_norm
                 else
                     days2next = 365
                 endif
-                hours2next = days2next * hournum_per_day
+                hours2next = days2next * hournum
                 record2next = hours2next * varnum
 
                 call reset_record(input_file       , &  !! INOUT
@@ -219,9 +243,11 @@ module clim_stand_norm
 
             enddo
 
+            call debug_linebreak()
+
             clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(yearnum, kind=kp)
-            call fwrite(clim_file         , &  !! INOUT
-                      & clim(1:nx,1:ny,1:nz))  !! IN
+            !call fwrite(clim_file         , &  !! INOUT
+            !          & clim(1:nx,1:ny,1:nz))  !! IN
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
@@ -254,7 +280,7 @@ module clim_stand_norm
     subroutine debug_reclist(record)
         integer, intent(in) :: record
 
-        write(debugUnit,'(i7)',advance='no') record
+        write(debugUnit,'(i10)',advance='no') record
 
     end subroutine debug_reclist
 

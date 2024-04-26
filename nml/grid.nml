@@ -1,0 +1,6 @@
+&grid
+    nx = 1
+    ny = 145
+    nz = 45
+&end
+

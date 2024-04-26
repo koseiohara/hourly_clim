@@ -11,8 +11,9 @@ module globals
     integer, save :: year_ini
     integer, save :: year_fin
     integer, save :: yearnum
+    integer, save :: hournum
+    
     integer, save :: varnum
-
     integer, save :: input_initialRecord
 
     character(256), save :: input_fname
