@@ -1,5 +1,5 @@
 EXE = daily_clim
-OBJS = NaNchecker.o fileio.o globals.o namelist.o leapYear.o clim_stand_norm.o main.o
+OBJS = NaNchecker.o fileio.o globals.o namelist.o leapYear.o hourly_clim.o main.o
 
 FC = ifort
 FLAGS = -warn all -O0 -assume byterecl -convert little_endian

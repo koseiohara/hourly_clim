@@ -1,13 +1,13 @@
 program main
 
-    use namelist       , only : read_nml
-    use clim_stand_norm, only : mean_all
+    use namelist   , only : read_nml
+    use hourly_clim, only : compute_clim
 
     implicit none
 
     call read_nml()
 
-    call mean_all()
+    call compute_clim()
 
 end program main
 

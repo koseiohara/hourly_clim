@@ -5,7 +5,7 @@ module fileio
     implicit none
 
     private
-    public :: finfo, fopen, fclose, fread, fwrite, reset_record
+    public :: finfo, fopen, fclose, fread, fwrite, reset_record, get_record
 
 
     type finfo
@@ -551,6 +551,15 @@ module fileio
         endif
 
     end subroutine reset_record
+
+
+    function get_record(ftype) result(output)
+        type(finfo), intent(in) :: ftype
+        integer :: output
+
+        output = ftype%record
+
+    end function get_record
 
 
     subroutine check_opened(ftype)
