@@ -1,4 +1,4 @@
-EXE = daily_clim
+EXE = EXE
 OBJS = NaNchecker.o fileio.o globals.o namelist.o leapYear.o hourly_clim.o main.o
 
 FC = ifort

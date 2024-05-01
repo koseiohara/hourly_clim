@@ -67,6 +67,7 @@ module fileio
 
 
         if (recl <= 0) then
+            write(*,*)
             write(*,'(a)')    'ValueError ----------------------------------------------------'
             write(*,'(a)')    '|   Invalid argument : Value of recl must be more than 0'
             write(*,'(a)')    '|'
@@ -80,6 +81,7 @@ module fileio
         endif
 
         if (record <= 0) then
+            write(*,*)
             write(*,'(a)')    'ValueError ----------------------------------------------------'
             write(*,'(a)')    '|   Invalid argument : Value of record must be more than 0'
             write(*,'(a)')    '|'
@@ -93,6 +95,7 @@ module fileio
         endif
 
         if (recstep < 0) then
+            write(*,*)
             write(*,'(a)')    'ValueError ----------------------------------------------------'
             write(*,'(a)')    '|   Invalid argument : Value of recstep must be equal or more than 0'
             write(*,'(a)')    '|'
@@ -117,6 +120,21 @@ module fileio
                &  IOSTAT=stat           )
 
         else
+
+            if (unit == 5 .or. unit == 6) then
+                write(*,*)
+                write(*,'(a)')    'ValueError ----------------------------------------------------'
+                write(*,'(a)')    '|   Invalid argument : 5 and 6 are unavailable for unit number'
+                write(*,'(a)')    '|'
+                write(*,'(a,i0)') '|   Unit     : ', unit
+                write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+                write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
+                write(*,'(a,i0)') '|   Recl     : ', ftype%recl
+                write(*,'(a,i0)') '|   Record   : ', ftype%record
+                write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
+                write(*,'(a)')    '---------------------------------------------------------------'
+                ERROR STOP
+            endif
 
             ftype%unit = unit
             open(  UNIT=ftype%unit   , &
@@ -175,14 +193,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine freadscalar_s
@@ -198,14 +209,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine freadscalar_d
@@ -221,14 +225,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fread1d_s
@@ -244,14 +241,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fread1d_d
@@ -267,14 +257,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fread2d_s
@@ -290,14 +273,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fread2d_d
@@ -313,14 +289,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fread3d_s
@@ -336,14 +305,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fread3d_d
@@ -359,14 +321,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fwritescalar_s
@@ -382,14 +337,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fwritescalar_d
@@ -405,14 +353,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fwrite1d_s
@@ -428,14 +369,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fwrite1d_d
@@ -451,14 +385,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fwrite2d_s
@@ -474,14 +401,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fwrite2d_d
@@ -497,14 +417,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fwrite3d_s
@@ -520,14 +433,7 @@ module fileio
         ftype%record = ftype%record + ftype%recstep
 
         if (isNaN(carrier)) then
-            write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
-            write(*,'(a,i0)') '|   Unit     : ', ftype%unit
-            write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
-            write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
-            write(*,'(a,i0)') '|   Recl     : ', ftype%recl
-            write(*,'(a,i0)') '|   Record   : ', ftype%record
-            write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
-            write(*,'(a)')    '---------------------------------------------------------------'
+            call NaNWarn(ftype)
         endif
 
     end subroutine fwrite3d_d
@@ -548,6 +454,7 @@ module fileio
             write(*,'(a)')    'ArgumentError -------------------------------------------------'
             write(*,'(a)')    '|   newrecord or recstep is needed for reset_record'
             write(*,'(a)')    '---------------------------------------------------------------'
+            ERROR STOP
         endif
 
     end subroutine reset_record
@@ -572,7 +479,7 @@ module fileio
 
         if (.NOT. opened) then
             write(*,*)
-            write(*,'(a)')    'ReadError -----------------------------------------------------'
+            write(*,'(a)')    'IO Error ------------------------------------------------------'
             write(*,'(a)')    '|   File is not opened'
             write(*,'(a)')    '|'
             write(*,'(a,i0)') '|   Unit     : ', ftype%unit
@@ -587,6 +494,22 @@ module fileio
         endif
 
     end subroutine check_opened
+
+
+    subroutine NaNWarn(ftype)
+        type(finfo), intent(in) :: ftype
+
+        write(*,*)
+        write(*,'(a)')    'Warning : NaN is Found ----------------------------------------'
+        write(*,'(a,i0)') '|   Unit     : ', ftype%unit
+        write(*,'(a)')    '|   FileName : ' // trim(ftype%fname)
+        write(*,'(a)')    '|   Action   : ' // trim(ftype%action)
+        write(*,'(a,i0)') '|   Recl     : ', ftype%recl
+        write(*,'(a,i0)') '|   Record   : ', ftype%record
+        write(*,'(a,i0)') '|   RecStep  : ', ftype%recstep
+        write(*,'(a)')    '---------------------------------------------------------------'
+
+    end subroutine NaNWarn
 
 
 end module fileio

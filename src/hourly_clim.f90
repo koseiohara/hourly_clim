@@ -23,7 +23,7 @@ module hourly_clim
 
         call debug_open()
         
-        call fopen(input_file                 , &  !! OUT
+        call fopen(ftype  =input_file         , &  !! OUT
                  & fname  =input_fname        , &  !! IN
                  & action ='read'             , &  !! IN
                  & recl   =kp*nx*ny*nz        , &  !! IN
@@ -50,6 +50,8 @@ module hourly_clim
 
         call fclose(input_file)  !! INOUT
         call fclose( clim_file)  !! INOUT
+
+        call debug_close()
 
     end subroutine compute_clim
 
@@ -85,8 +87,8 @@ module hourly_clim
 
                 call debug_reclist(input_file%record)
 
-                !call fread(input_file          , &  !! INOUT
-                !         & reader(1:nx,1:ny,1:nz))  !! OUT
+                call fread(input_file          , &  !! INOUT
+                         & reader(1:nx,1:ny,1:nz))  !! OUT
 
                 clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
 
@@ -106,8 +108,8 @@ module hourly_clim
             call debug_linebreak()
 
             clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(yearnum, kind=kp)
-            !call fwrite(clim_file         , &  !! INOUT
-            !          & clim(1:nx,1:ny,1:nz))  !! IN
+            call fwrite(clim_file         , &  !! INOUT
+                      & clim(1:nx,1:ny,1:nz))  !! IN
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
@@ -149,8 +151,8 @@ module hourly_clim
                     
                     call debug_reclist(input_file%record)
 
-                    !call fread(input_file          , &
-                    !         & reader(1:nx,1:ny,1:nz))
+                    call fread(input_file          , &  !! INOUT
+                             & reader(1:nx,1:ny,1:nz))  !! OUT
 
                     clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
                     leapNum = leapNum + 1
@@ -177,8 +179,8 @@ module hourly_clim
             call debug_linebreak()
 
             clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(leapNum, kind=kp)
-            !call fwrite(clim_file         , &  !! INOUT
-            !          & clim(1:nx,1:ny,1:nz))  !! IN
+            call fwrite(clim_file         , &  !! INOUT
+                      & clim(1:nx,1:ny,1:nz))  !! IN
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
@@ -200,10 +202,8 @@ module hourly_clim
         real(kp) :: reader(nx,ny,nz)
         real(kp) :: clim(nx,ny,nz)
 
-        !integer, parameter :: hournum_per_day = 4
                                                !! MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC
         integer, parameter :: daynum_before_leap = 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30 + 31
-        !integer, parameter :: hournum_before_leap = daynum_before_leap * hournum_per_day
         integer :: hournum_before_leap
         integer :: hourcounter
         integer :: yearcounter
@@ -225,8 +225,8 @@ module hourly_clim
 
                 call debug_reclist(input_file%record)
 
-                !call fread(input_file          , &  !! INOUT
-                !         & reader(1:nx,1:ny,1:nz))  !! OUT
+                call fread(input_file          , &  !! INOUT
+                         & reader(1:nx,1:ny,1:nz))  !! OUT
 
                 clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
 
@@ -246,8 +246,8 @@ module hourly_clim
             call debug_linebreak()
 
             clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(yearnum, kind=kp)
-            !call fwrite(clim_file         , &  !! INOUT
-            !          & clim(1:nx,1:ny,1:nz))  !! IN
+            call fwrite(clim_file         , &  !! INOUT
+                      & clim(1:nx,1:ny,1:nz))  !! IN
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
