@@ -1,14 +1,16 @@
 module namelist
 
-    use globals, only : nx, ny, nz                          , &
-                      & year_ini, year_fin, yearnum, hournum, &
-                      & varnum, input_initialRecord         , &
-                      & input_fname, clim_fname
+    use globals, only : nx, ny, nz                              , &
+                      & datayear_ini, climyear_ini, climyear_fin, &
+                      & yearnum, hournum                        , &
+                      & varnum, input_initialRecord             , &
+                      & input_fname, clim_fname                 , &
+                      & mode
 
     implicit none
 
     private
-    public :: read_nml
+    public :: read_nml, tweet_setting
 
     contains
 
@@ -20,22 +22,26 @@ module namelist
         integer :: tinfo_unit
         integer :: recinfo_unit
         integer :: files_unit
+        integer :: execmode_unit
         character(128), parameter :: grid_fname='../nml/grid.nml'
         character(128), parameter :: tinfo_fname='../nml/tinfo.nml'
         character(128), parameter :: recinfo_fname='../nml/recinfo.nml'
         character(128), parameter :: files_fname='../nml/files.nml'
+        character(128), parameter :: execmode_fname='../nml/execmode.nml'
 
         namelist / grid / nx, ny, nz
-        namelist / tinfo / year_ini, year_fin, hourstep
+        namelist / tinfo / datayear_ini, climyear_ini, climyear_fin, hourstep
         namelist / recinfo / varnum, input_initialRecord
         namelist / files / input_fname, clim_fname
+        namelist / execmode / mode
 
         nx = 0
         ny = 0
         nz = 0
 
-        year_ini = 0
-        year_fin = 0
+        datayear_ini = 0
+        climyear_ini = 0
+        climyear_fin = 0
         hourstep = 0
 
         varnum              = 0
@@ -44,32 +50,39 @@ module namelist
         input_fname = ''
         clim_fname  = ''
 
+        mode = ''
 
-        call open_nml(grid_unit, &  !! OUT
-                    & grid_fname )  !! IN
-        
-        call open_nml(tinfo_unit, &  !! OUT
-                    & tinfo_fname )  !! IN
-        
-        call open_nml(recinfo_unit, &  !! OUT
-                    & recinfo_fname )  !! IN
-        
-        call open_nml(files_unit, &  !! OUT
-                    & files_fname )  !! IN
 
-        read(grid_unit    , nml=grid   )
-        read(tinfo_unit, nml=tinfo     )
-        read(recinfo_unit , nml=recinfo)
-        read(files_unit   , nml=files  )
+        call open_nml(grid_unit    , &  !! OUT
+                    & grid_fname     )  !! IN
+        
+        call open_nml(tinfo_unit   , &  !! OUT
+                    & tinfo_fname    )  !! IN
+        
+        call open_nml(recinfo_unit , &  !! OUT
+                    & recinfo_fname  )  !! IN
+        
+        call open_nml(files_unit   , &  !! OUT
+                    & files_fname    )  !! IN
+
+        call open_nml(execmode_unit, &  !! OUT
+                    & execmode_fname )  !! IN
+
+        read(grid_unit    , nml=grid    )
+        read(tinfo_unit   , nml=tinfo   )
+        read(recinfo_unit , nml=recinfo )
+        read(files_unit   , nml=files   )
+        read(execmode_unit, nml=execmode)
 
         close(grid_unit    )
-        close(tinfo_unit)
+        close(tinfo_unit   )
         close(recinfo_unit )
         close(files_unit   )
+        close(execmode_unit)
 
         call checker(hourstep)
         
-        yearnum = year_fin - year_ini + 1
+        yearnum = climyear_fin - climyear_ini + 1
         hournum = 24 / hourstep
 
     end subroutine read_nml
@@ -129,32 +142,43 @@ module namelist
             ERROR STOP
         endif
 
-        if (year_ini <= 1900) then
+        if (datayear_ini > climyear_ini) then
             write(*,'(a)')    'InputError ---------------------------------------------'
-            write(*,'(a)')    '|   Invalid year_ini value in namelist'
-            write(*,'(a)')    '|   year_ini must be more than 1900'
-            write(*,'(a,i0)') '|   Input : year_ini=', year_ini
+            write(*,'(a)')    '|   Invalid datayear_ini or climyear_ini value in namelist'
+            write(*,'(a)')    '|   datayear_ini must be smaller than climyear_ini'
+            write(*,'(a,i0)') '|   Input : datayear_ini=', datayear_ini
+            write(*,'(a,i0)') '|   Input : climyear_ini=', climyear_ini
             write(*,'(a)')    '--------------------------------------------------------'
             
             ERROR STOP
         endif
 
-        if (year_fin <= 1900) then
+        if (climyear_ini <= 1900) then
             write(*,'(a)')    'InputError ---------------------------------------------'
-            write(*,'(a)')    '|   Invalid year_fin value in namelist'
-            write(*,'(a)')    '|   year_fin must be more than 1900'
-            write(*,'(a,i0)') '|   Input : year_fin=', year_fin
+            write(*,'(a)')    '|   Invalid climyear_ini value in namelist'
+            write(*,'(a)')    '|   climyear_ini must be more than 1900'
+            write(*,'(a,i0)') '|   Input : climyear_ini=', climyear_ini
             write(*,'(a)')    '--------------------------------------------------------'
             
             ERROR STOP
         endif
 
-        if (year_fin < year_ini) then
+        if (climyear_fin <= 1900) then
             write(*,'(a)')    'InputError ---------------------------------------------'
-            write(*,'(a)')    '|   Invalid year_fin or year_fin value in namelist'
-            write(*,'(a)')    '|   year_fin must be equal or more than year_ini'
-            write(*,'(a,i0)') '|   Input : year_ini=', year_ini
-            write(*,'(a,i0)') '|   Input : year_fin=', year_fin
+            write(*,'(a)')    '|   Invalid climyear_fin value in namelist'
+            write(*,'(a)')    '|   climyear_fin must be more than 1900'
+            write(*,'(a,i0)') '|   Input : climyear_fin=', climyear_fin
+            write(*,'(a)')    '--------------------------------------------------------'
+            
+            ERROR STOP
+        endif
+
+        if (climyear_fin < climyear_ini) then
+            write(*,'(a)')    'InputError ---------------------------------------------'
+            write(*,'(a)')    '|   Invalid climyear_fin or climyear_fin value in namelist'
+            write(*,'(a)')    '|   climyear_fin must be equal or more than climyear_ini'
+            write(*,'(a,i0)') '|   Input : climyear_ini=', climyear_ini
+            write(*,'(a,i0)') '|   Input : climyear_fin=', climyear_fin
             write(*,'(a)')    '--------------------------------------------------------'
             
             ERROR STOP
@@ -208,7 +232,41 @@ module namelist
             ERROR STOP
         endif
 
+        if (mode /= 'DEBUG' .and. mode /= 'COMPUTE' .and. mode /= 'BOTH') then
+            write(*,'(a)')    'InputError ---------------------------------------------'
+            write(*,'(a)')    '|   Invalid mode value in namelist'
+            write(*,'(a)')    '|   mode must be "DEBUG", "COMPUTE", or "BOTH"'
+            write(*,'(a)')    '|   Input : mode=' // trim(mode)
+            write(*,'(a)')    '--------------------------------------------------------'
+            
+            ERROR STOP
+        endif
+
     end subroutine checker
+
+
+    subroutine tweet_setting()
+        
+        write(*,*)
+        write(*,'(a)')      '---'
+        write(*,'(a)')      ' INPUT  FILE : ' // trim(input_fname)
+        write(*,'(a)')      ' OUTPUT FILE : ' // trim(clim_fname)
+        write(*,'(a)')      '---'
+        write(*,'(a,i0)')   ' NX = ', nx
+        write(*,'(a,i0)')   ' NY = ', ny
+        write(*,'(a,i0)')   ' NZ = ', nz
+        write(*,'(a)')      '---'
+        write(*,'(a,i0,a)') ' DATA START FROM ', datayear_ini, '/01/01 00:00:00'
+        write(*,'(a,i0)')   ' INITIAL YEAR TO COMPUTE CLIM. : ', climyear_ini
+        write(*,'(a,i0)')   ' FINAL   YEAR TO COMPUTE CLIM. : ', climyear_fin
+        write(*,'(a,i0)')   ' HOUR STEP                     : ', 24/hournum
+        write(*,'(a)')      '---'
+        write(*,'(a,i0)')   ' NUMBER OF VARIABLES     : ', varnum
+        write(*,'(a,i0)')   ' INITIAL RECORD OF INPUT : ', input_initialRecord
+        write(*,'(a)')      '---'
+        write(*,*)
+
+    end subroutine tweet_setting
 
 
 end module namelist

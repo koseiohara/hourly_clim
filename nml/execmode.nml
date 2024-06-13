@@ -1,0 +1,4 @@
+&execmode
+    mode = 'BOTH'
+&END
+

@@ -8,8 +8,9 @@ module globals
     integer, save :: ny
     integer, save :: nz
 
-    integer, save :: year_ini
-    integer, save :: year_fin
+    integer, save :: datayear_ini
+    integer, save :: climyear_ini
+    integer, save :: climyear_fin
     integer, save :: yearnum
     integer, save :: hournum
     
@@ -18,6 +19,8 @@ module globals
 
     character(256), save :: input_fname
     character(256), save :: clim_fname
+
+    character(8), save :: mode
 
 end module globals
 

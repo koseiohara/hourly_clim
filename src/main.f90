@@ -1,6 +1,6 @@
 program main
 
-    use namelist   , only : read_nml
+    use namelist   , only : read_nml, tweet_setting
     use hourly_clim, only : compute_clim
 
     implicit none
@@ -11,6 +11,8 @@ program main
     call cpu_time(begin_time)
 
     call read_nml()
+
+    call tweet_setting()
 
     call compute_clim()
 

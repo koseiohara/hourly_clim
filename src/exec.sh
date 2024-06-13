@@ -5,11 +5,12 @@
 #PBS -j oe
 #PBS -l nodes=1:ppn=1
 
-JOBNAME=c_kz_ae_clim
+VARNAME=qe
 NOW=$(date "+%Y%m%d_%H%M%S")
-RESULT_FILE="../output/result_${JOBNAME}_${NOW}.txt"
+RESULT_FILE="../output/result_${VARNAME}_${NOW}.txt"
 
 cd /mnt/hail8/kosei/mim/energetics/hourly_clim/src
 
 ./EXE >& ${RESULT_FILE}
+
 

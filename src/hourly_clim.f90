@@ -1,9 +1,10 @@
 module hourly_clim
 
     use fileio , only : finfo, fopen, fclose, fread, fwrite, reset_record
-    use globals, only : kp, nx, ny, nz                                    , &
-                      & year_ini, year_fin, yearnum, hournum              , &
-                      & varnum, input_initialRecord, input_fname, clim_fname
+    use globals, only : kp, nx, ny, nz                                            , &
+                      & datayear_ini, climyear_ini, climyear_fin, yearnum, hournum, &
+                      & varnum, input_initialRecord, input_fname, clim_fname      , &
+                      & mode
     use leapYear, only : isLeap
 
     implicit none
@@ -21,7 +22,9 @@ module hourly_clim
         type(finfo) :: input_file
         type(finfo) :: clim_file
 
-        call debug_open()
+        if (mode == 'DEBUG' .or. mode == 'BOTH') then
+            call debug_open()
+        endif
         
         call fopen(ftype  =input_file         , &  !! OUT
                  & fname  =input_fname        , &  !! IN
@@ -36,6 +39,8 @@ module hourly_clim
                  & recl   =kp*nx*ny*nz, &  !! IN
                  & record =1          , &  !! IN
                  & recstep=1            )  !! IN
+        
+        call skip_year(input_file)  !! INOUT
 
 
         call clim_before_leap(input_file, &  !! INOUT
@@ -51,7 +56,9 @@ module hourly_clim
         call fclose(input_file)  !! INOUT
         call fclose( clim_file)  !! INOUT
 
-        call debug_close()
+        if (mode == 'DEBUG' .or. mode == 'BOTH') then
+            call debug_close()
+        endif
 
     end subroutine compute_clim
 
@@ -83,33 +90,44 @@ module hourly_clim
             rec_ini = input_file%record
             clim(1:nx,1:ny,1:nz) = 0._kp
 
-            do yearcounter = year_ini, year_fin
+            do yearcounter = climyear_ini, climyear_fin
 
-                call debug_reclist(input_file%record)
-
-                call fread(input_file          , &  !! INOUT
-                         & reader(1:nx,1:ny,1:nz))  !! OUT
-
-                clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
-
-                if (isLeap(yearcounter)) then
-                    days2next = 366
-                else
-                    days2next = 365
+                if (mode == 'DEBUG' .or. mode == 'BOTH') then
+                    call debug_reclist(input_file%record)
                 endif
-                hours2next = days2next * hournum
-                record2next = hours2next * varnum
+
+                if (mode == 'COMPUTE' .or. mode == 'BOTH') then
+                    call fread(input_file          , &  !! INOUT
+                             & reader(1:nx,1:ny,1:nz))  !! OUT
+
+                    clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
+                endif
+
+                !if (isLeap(yearcounter)) then
+                !    days2next = 366
+                !else
+                !    days2next = 365
+                !endif
+                !hours2next = days2next * hournum
+                !record2next = hours2next * varnum
+
+                call next_record(yearcounter, &  !! IN
+                               & record2next  )  !! OUT
 
                 call reset_record(input_file       , &  !! INOUT
                                 & recstep=record2next)  !! IN
 
             enddo
 
-            call debug_linebreak()
+            if (mode == 'DEBUG' .or. mode == 'BOTH') then
+                call debug_linebreak()
+            endif
 
-            clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(yearnum, kind=kp)
-            call fwrite(clim_file         , &  !! INOUT
-                      & clim(1:nx,1:ny,1:nz))  !! IN
+            if (mode == 'COMPUTE' .or. mode == 'BOTH') then
+                clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(yearnum, kind=kp)
+                call fwrite(clim_file         , &  !! INOUT
+                          & clim(1:nx,1:ny,1:nz))  !! IN
+            endif
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
@@ -145,49 +163,61 @@ module hourly_clim
             clim(1:nx,1:ny,1:nz) = 0._kp
             leapNum = 0
 
-            do yearcounter = year_ini, year_fin
+            do yearcounter = climyear_ini, climyear_fin
 
                 if (isLeap(yearcounter)) then
                     
-                    call debug_reclist(input_file%record)
+                    if (mode == 'DEBUG' .or. mode == 'BOTH') then
+                        call debug_reclist(input_file%record)
+                    endif
 
-                    call fread(input_file          , &  !! INOUT
-                             & reader(1:nx,1:ny,1:nz))  !! OUT
+                    if (mode == 'COMPUTE' .or. mode == 'BOTH') then
+                        call fread(input_file          , &  !! INOUT
+                                 & reader(1:nx,1:ny,1:nz))  !! OUT
 
-                    clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
-                    leapNum = leapNum + 1
+                        clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
+                        leapNum = leapNum + 1
+                    endif
 
-                    days2next = 366
+                    !days2next = 366
 
                 else
 
-                    call debug_reclist(0)
+                    if (mode == 'DEBUG' .or. mode == 'BOTH') then
+                        call debug_reclist(0)
+                    endif
 
-                    days2next = 365
+                    !days2next = 365
 
                 endif
-                !days2next = 366
 
-                hours2next = days2next * hournum
-                record2next = hours2next * varnum
+                !hours2next = days2next * hournum
+                !record2next = hours2next * varnum
+
+                call next_record(yearcounter, &  !! IN
+                               & record2next  )  !! OUT
 
                 call reset_record(input_file       , &  !! INOUT
                                 & recstep=record2next)  !! IN
 
             enddo
 
-            call debug_linebreak()
+            if (mode == 'DEBUG' .or. mode == 'BOTH') then
+                call debug_linebreak()
+            endif
 
-            clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(leapNum, kind=kp)
-            call fwrite(clim_file         , &  !! INOUT
-                      & clim(1:nx,1:ny,1:nz))  !! IN
+            if (mode == 'COMPUTE' .or. mode == 'BOTH') then
+                clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(leapNum, kind=kp)
+                call fwrite(clim_file         , &  !! INOUT
+                          & clim(1:nx,1:ny,1:nz))  !! IN
+            endif
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
 
         enddo
 
-        if (.NOT. isLeap(year_ini)) then
+        if (.NOT. isLeap(climyear_ini)) then
             call reset_record(input_file           , &  !! INOUT
                             & recstep=-hournum*varnum)  !! IN
         endif
@@ -221,33 +251,44 @@ module hourly_clim
             rec_ini = input_file%record
             clim(1:nx,1:ny,1:nz) = 0._kp
 
-            do yearcounter = year_ini, year_fin
+            do yearcounter = climyear_ini, climyear_fin
 
-                call debug_reclist(input_file%record)
-
-                call fread(input_file          , &  !! INOUT
-                         & reader(1:nx,1:ny,1:nz))  !! OUT
-
-                clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
-
-                if (isLeap(yearcounter+1)) then
-                    days2next = 366
-                else
-                    days2next = 365
+                if (mode == 'DEBUG' .or. mode == 'BOTH') then
+                    call debug_reclist(input_file%record)
                 endif
-                hours2next = days2next * hournum
-                record2next = hours2next * varnum
+
+                if (mode == 'COMPUTE' .or. mode == 'BOTH') then
+                    call fread(input_file          , &  !! INOUT
+                             & reader(1:nx,1:ny,1:nz))  !! OUT
+
+                    clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
+                endif
+
+                !if (isLeap(yearcounter+1)) then
+                !    days2next = 366
+                !else
+                !    days2next = 365
+                !endif
+                !hours2next = days2next * hournum
+                !record2next = hours2next * varnum
+
+                call next_record(yearcounter+1, &  !! IN
+                               & record2next    )  !! OUT
 
                 call reset_record(input_file       , &  !! INOUT
                                 & recstep=record2next)  !! IN
 
             enddo
 
-            call debug_linebreak()
+            if (mode == 'DEBUG' .or. mode == 'BOTH') then
+                call debug_linebreak()
+            endif
 
-            clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(yearnum, kind=kp)
-            call fwrite(clim_file         , &  !! INOUT
-                      & clim(1:nx,1:ny,1:nz))  !! IN
+            if (mode == 'COMPUTE' .or. mode == 'BOTH') then
+                clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) / real(yearnum, kind=kp)
+                call fwrite(clim_file         , &  !! INOUT
+                          & clim(1:nx,1:ny,1:nz))  !! IN
+            endif
 
             call reset_record(input_file            , &  !! INOUT
                             & newrecord=rec_ini+varnum)  !! IN
@@ -255,6 +296,42 @@ module hourly_clim
         enddo
 
     end subroutine clim_after_leap
+
+
+    subroutine skip_year(input_file)
+        type(finfo), intent(inout) :: input_file
+
+        integer :: year
+        integer :: record2next
+
+        do year = datayear_ini, climyear_ini-1
+            call next_record(year     , &  !! IN
+                           & record2next)  !! OUT
+
+            call reset_record(input_file       , &  !! INOUT
+                            & recstep=record2next)  !! IN
+        enddo
+
+    end subroutine skip_year
+
+
+    subroutine next_record(year, record2next)
+        integer, intent(in)  :: year
+        integer, intent(out) :: record2next
+
+        integer :: days2next
+        integer :: hours2next
+
+        if (isLeap(year)) then
+            days2next = 366
+        else
+            days2next = 365
+        endif
+        
+        hours2next = days2next * hournum
+        record2next = hours2next * varnum
+
+    end subroutine next_record
 
 
     subroutine debug_open()

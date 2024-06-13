@@ -1,5 +1,5 @@
 &files
-    input_fname = '/mnt/hail8/kosei/mim/JRA3Q/mymim35ALL/output/JRA3Q_1949_2022_ALL.grd'
-    clim_fname = '../output/JRA3Q_6hourly_clim_1949_2022.dat'
+    input_fname = '/mnt/hail8/kosei/mim/JRA55/mymim35ALL/output/JRA55_1979_1980_ALL_VINT.grd'
+    clim_fname = '../output/JRA55_6hourly_clim_1979_1980_qe_VINT.dat'
 &end
 
