@@ -5,6 +5,7 @@ module hourly_clim
                       & datayear_ini, climyear_ini, climyear_fin, yearnum, hournum, &
                       & varnum, input_initialRecord, input_fname, clim_fname      , &
                       & mode
+    use interp, only : interp_linear_y
     use leapYear, only : isLeap
 
     implicit none
@@ -99,6 +100,7 @@ module hourly_clim
                 if (mode == 'COMPUTE' .or. mode == 'BOTH') then
                     call fread(input_file          , &  !! INOUT
                              & reader(1:nx,1:ny,1:nz))  !! OUT
+                    call interp_linear_y(reader(1:nz,1:ny,1:nz))  !! INOUT
 
                     clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
                 endif
@@ -174,6 +176,7 @@ module hourly_clim
                     if (mode == 'COMPUTE' .or. mode == 'BOTH') then
                         call fread(input_file          , &  !! INOUT
                                  & reader(1:nx,1:ny,1:nz))  !! OUT
+                        call interp_linear_y(reader(1:nz,1:ny,1:nz))  !! INOUT
 
                         clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
                         leapNum = leapNum + 1
@@ -260,6 +263,7 @@ module hourly_clim
                 if (mode == 'COMPUTE' .or. mode == 'BOTH') then
                     call fread(input_file          , &  !! INOUT
                              & reader(1:nx,1:ny,1:nz))  !! OUT
+                    call interp_linear_y(reader(1:nz,1:ny,1:nz))  !! INOUT
 
                     clim(1:nx,1:ny,1:nz) = clim(1:nx,1:ny,1:nz) + reader(1:nx,1:ny,1:nz)
                 endif

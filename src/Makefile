@@ -1,5 +1,5 @@
 EXE = EXE
-OBJS = NaNchecker.o fileio.o globals.o namelist.o leapYear.o hourly_clim.o main.o
+OBJS = globals.o interp.o NaNchecker.o fileio.o namelist.o leapYear.o hourly_clim.o main.o
 
 FC = ifort
 FLAGS = -warn all -O0 -assume byterecl -convert little_endian
