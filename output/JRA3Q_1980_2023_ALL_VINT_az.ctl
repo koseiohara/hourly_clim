@@ -1,4 +1,4 @@
-dset ^JRA3Q_6hourly_clim_1980_2022_kz_VINT.dat
+dset ^JRA3Q_1980_2023_ALL_VINT_az.dat
 title MIM 366 CLIM
 undef -9.99E33
 options little_endian yrev
@@ -9,6 +9,6 @@ zdef 1 linear 1 1
 tdef 1464 linear 00Z01JAN2000 6hr
 
 vars 1
-kz 1 99 Kz 6hourly clim
+az 1 99 az 6hourly clim
 endvars
 

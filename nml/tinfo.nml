@@ -1,7 +1,7 @@
 &tinfo
-    datayear_ini = 1979
-    climyear_ini = 1979
-    climyear_fin = 1980
+    datayear_ini = 1975
+    climyear_ini = 1980
+    climyear_fin = 2023
     hourstep = 6
 &end
 
