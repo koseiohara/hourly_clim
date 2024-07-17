@@ -21,7 +21,8 @@ def mkdata(fname, ny):
 
     for t in range(0, hrs):
         input_work = ftype.fread()
-        vint[:,t] = input_work[::-1]*cos
+        #vint[:,t] = input_work[::-1]*cos
+        vint[:,t] = input_work[::-1]
 
     return vint
 
