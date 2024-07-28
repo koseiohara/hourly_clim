@@ -26,6 +26,11 @@ def vint2gmean(vint, latstep, isYrev, range_south, range_north):
             lastIDX = i
             break
 
+    #print('lat[firstIDX] : ', lat[firstIDX]*180./np.pi)
+    #print('lat[lastIDX]  : ', lat[lastIDX]*180./np.pi)
+    #print('vint.size     : ', vint.size)
+    #print('---')
+    #print('latstep : ', latstep)
 
     #gmean = vint[0] * np.cos(lat[0]) * (PIHALF - lat[0]) * 0.25
     gmean = 0.

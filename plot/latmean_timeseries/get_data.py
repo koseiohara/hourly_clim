@@ -6,14 +6,14 @@ from vint2gmean import vint2gmean
 
 
 
-def get_from_vint(fname, recl, rec, kind, endian, recstep, ny, nt, range_south, range_north):
+def get_from_vint(fname, recl, rec, kind, endian, recstep, ny, nt, latstep, range_south, range_north):
 
     vint_clim = filein(fname, [ny], recl, rec, kind, endian, recstep)
     vint = np.empty([ny])
 
     gmean = np.empty(nt)
 
-    latstep = (range_north - range_south) / np.float64(ny-1)
+    #latstep = (range_north - range_south) / np.float64(ny-1)
 
     for t in range(nt):
         vint[:] = vint_clim.fread()

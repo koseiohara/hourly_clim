@@ -1,148 +1,550 @@
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import matplotlib.ticker as mticker
-import datetime
 
-from filein import filein as filein
-from vint2gmean import vint2gmean
-
-#vint = np.ones(145)
-#gmean = vint2gmean(vint, 1.25, True, -90., 0.)
-#
-#print(gmean)
+from get_data import get_from_vint, get_from_gmean, get_datetime
+from gmean_panels import plot_az, plot_kz, plot_w, plot_c_az_kz, plot_c_kz_w, plot_qe, plot_qz
+from decolate import decolate
 
 
-fname_az = '../output/JRA3Q_6hourly_clim_1970_2022_{}_VINT.dat'.format('az')
-fname_kz = '../output/JRA3Q_6hourly_clim_1970_2022_{}_VINT_sub.dat'.format('kz')
-fname_ae = '../output/JRA3Q_6hourly_clim_1970_2022_{}_VINT.dat'.format('ae')
-fname_ke = '../output/JRA3Q_6hourly_clim_1970_2022_{}_VINT.dat'.format('ke')
-shape = [145]
-recl = 4*145
-rec = 1
-recstep = 1
-kind = 4
-endian = 'LITTLE'
-
+ny = 145
 nt = 366*4
-latstep = 1.25
 
-def get_meanclim(fname, shape, recl, rec, kind, endian, recstep, range_south, range_north):
+def separate():
 
-    vint_clim = filein(fname, shape, recl, rec, kind, endian, recstep)
-    vint = np.empty(shape)
+    date = get_datetime()
 
-    gmean = np.empty(nt)
-
-    for t in range(nt):
-        vint[:] = vint_clim.fread()
-
-        gmean[t] = vint2gmean(vint[:], latstep, True, range_south, range_north)
-
-    vint_clim.fclose()
-
-    return gmean
-
-
-def get_datetime():
-    year=2000
-    hourstep = 6
-    tnum = 366*4
     
-    output = [0]*tnum
-    output[0] = datetime.datetime(year, 1, 1)
-    for t in range(1, tnum):
-        output[t] = output[t-1] + datetime.timedelta(hours=hourstep)
+    ### AZ
+    nh = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_az.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=0, \
+                       range_north=90)
+    sh = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_az.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=-90., \
+                       range_north=0.)
+    nh = nh*1e-6
+    sh = sh*1e-6
     
-    return output
-
-
-def mkgrph(fname, title, range_south, range_north):
-    date_and_time = get_datetime()
-    gmean_az = get_meanclim(fname_az, shape, recl, rec, kind, endian, recstep, range_south, range_north) * 1e-6
-    gmean_kz = get_meanclim(fname_kz, shape, recl, rec, kind, endian, recstep, range_south, range_north) * 1e-6
-    gmean_ae = get_meanclim(fname_ae, shape, recl, rec, kind, endian, recstep, range_south, range_north) * 1e-6
-    gmean_ke = get_meanclim(fname_ke, shape, recl, rec, kind, endian, recstep, range_south, range_north) * 1e-6
-    gmean_w  = gmean_ae + gmean_ke
-
-   
-    figaz = plt.figure(figsize=[5,3])
-    figkz = plt.figure(figsize=[5,3])
-    figws = plt.figure(figsize=[5,3])
+    figaz = plt.figure(figsize=[8,4])
     axaz = figaz.add_subplot(111)
+
+    axaz.plot(date,    nh, color='blue' , label='NH')
+    axaz.plot(date,    sh, color='red'  , label='SH')
+    axaz.plot(date, nh+sh, color='black', label='Global')
+    decolate(axaz, r'$A_Z \:\left(10^6 \: \mathrm{J \: m^{-2}}\right)$', '', date, 0., 4., 1, 0.5)
+    axaz.legend(bbox_to_anchor=[0.5,-0.11], loc='upper center', borderaxespad=0, ncol=3)
+    #plot_az(figaz, axaz, az, date, title=r'Global Mean $A_Z \:\left(10^6 \: \mathrm{J \: m^{-2}}\right)$')
+    figaz.savefig('figs/JRA3Q_1980_2023_az_NSG_clim.png', dpi=350, bbox_inches='tight')
+
+    
+    ### KZ
+    nh = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_kz.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=0, \
+                       range_north=90)
+    sh = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_kz.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=-90, \
+                       range_north=0)
+    nh = nh*1e-6
+    sh = sh*1e-6
+
+    figkz = plt.figure(figsize=[8,4])
     axkz = figkz.add_subplot(111)
-    axws = figws.add_subplot(111)
 
-    axaz.plot(date_and_time, gmean_az, color='black', label='Az')
-    axkz.plot(date_and_time, gmean_kz, color='black', label='Kz')
-    axws.plot(date_and_time, gmean_ae, color='blue' , label='Ae')
-    axws.plot(date_and_time, gmean_ke, color='red'  , label='Ke')
-    axws.plot(date_and_time, gmean_w , color='black', label='W' )
-
-    axaz.set_xlim(date_and_time[0], date_and_time[-1])
-    axkz.set_xlim(date_and_time[0], date_and_time[-1])
-    axws.set_xlim(date_and_time[0], date_and_time[-1])
-
-    decolate(axaz, axkz, axws, title)
-
-    figaz.savefig('{}_{}.png'.format(fname, 'az')     , dpi=350, bbox_inches='tight')
-    figkz.savefig('{}_{}.png'.format(fname, 'kz')     , dpi=350, bbox_inches='tight')
-    figws.savefig('{}_{}.png'.format(fname, 'ae_ke_w'), dpi=350, bbox_inches='tight')
+    axkz.plot(date,    nh, color='blue' , label='NH')
+    axkz.plot(date,    sh, color='red'  , label='SH')
+    axkz.plot(date, nh+sh, color='black', label='Global')
+    decolate(axkz, r'$K_Z \:\left(10^6 \: \mathrm{J \: m^{-2}}\right)$', '', date, 0., 1., 1, 0.1)
+    axkz.legend(bbox_to_anchor=[0.5,-0.11], loc='upper center', borderaxespad=0, ncol=3)
+    #plot_kz(figkz, axkz, kz, date, title=r'Global Mean $K_Z \:\left(10^6 \: \mathrm{J \: m^{-2}}\right)$')
+    figkz.savefig('figs/JRA3Q_1980_2023_kz_NSG_clim.png', dpi=350, bbox_inches='tight')
 
 
-def decolate(axaz,axkz, axws, title):
+    ### W
+    nhk = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ke.dat', \
+                        recl   =4*ny, \
+                        rec    =1, \
+                        kind   =4, \
+                        endian ='LITTLE', \
+                        recstep=1, \
+                        ny     =ny, \
+                        nt     =nt, \
+                        latstep=1.25, \
+                        range_south=0, \
+                        range_north=90)
+    shk = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ke.dat', \
+                        recl   =4*ny, \
+                        rec    =1, \
+                        kind   =4, \
+                        endian ='LITTLE', \
+                        recstep=1, \
+                        ny     =ny, \
+                        nt     =nt, \
+                        latstep=1.25, \
+                        range_south=-90, \
+                        range_north=0)
+    nhk = nhk*1e-6
+    shk = shk*1e-6
 
-    #fig.subplots_adjust(hspace=0.15, top=0.95)
+    nha = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ae.dat', \
+                        recl   =4*ny, \
+                        rec    =1, \
+                        kind   =4, \
+                        endian ='LITTLE', \
+                        recstep=1, \
+                        ny     =ny, \
+                        nt     =nt, \
+                        latstep=1.25, \
+                        range_south=0, \
+                        range_north=90)
+    sha = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ae.dat', \
+                        recl   =4*ny, \
+                        rec    =1, \
+                        kind   =4, \
+                        endian ='LITTLE', \
+                        recstep=1, \
+                        ny     =ny, \
+                        nt     =nt, \
+                        latstep=1.25, \
+                        range_south=-90, \
+                        range_north=0)
+    nha = nha*1e-6
+    sha = sha*1e-6
 
-    axaz.xaxis.set_major_locator(mdates.MonthLocator(interval=2, bymonthday=1))
-    axkz.xaxis.set_major_locator(mdates.MonthLocator(interval=2, bymonthday=1))
-    axws.xaxis.set_major_locator(mdates.MonthLocator(interval=2, bymonthday=1))
+    nh = nhk + nha
+    sh = shk + sha
 
-    axaz.xaxis.set_minor_locator(mdates.MonthLocator(interval=1, bymonthday=1))
-    axkz.xaxis.set_minor_locator(mdates.MonthLocator(interval=1, bymonthday=1))
-    axws.xaxis.set_minor_locator(mdates.MonthLocator(interval=1, bymonthday=1))
-    
-    axaz.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
-    axkz.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
-    axws.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+    figw = plt.figure(figsize=[8,4])
+    axw = figw.add_subplot(111)
 
-    #axaz.yaxis.set_major_locator(mticker.MultipleLocator(0.5e0))
-    #axkz.yaxis.set_major_locator(mticker.MultipleLocator(0.5e0))
-    #axws.yaxis.set_major_locator(mticker.MultipleLocator(0.5e0))
-
-    #axaz.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.2f'))
-    #axkz.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.2f'))
-    #axws.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.2f'))
-
-    axaz.yaxis.set_minor_locator(mticker.AutoMinorLocator(5))
-    axkz.yaxis.set_minor_locator(mticker.AutoMinorLocator(5))
-    axws.yaxis.set_minor_locator(mticker.AutoMinorLocator(5))
-
-    axaz.grid(axis='both', which='major', linewidth=0.3)
-    axkz.grid(axis='both', which='major', linewidth=0.3)
-    axws.grid(axis='both', which='major', linewidth=0.3)
-    
-    axaz.grid(axis='both', which='minor', linewidth=0.1)
-    axkz.grid(axis='both', which='minor', linewidth=0.1)
-    axws.grid(axis='both', which='minor', linewidth=0.1)
-
-    axaz.tick_params(labelsize=10)
-    axkz.tick_params(labelsize=10)
-    axws.tick_params(labelsize=10)
-
-    #fig.suptitle(title, fontsize=12)
-    axaz.set_title(title, fontsize=12)
-    axkz.set_title(title, fontsize=12)
-    axws.set_title(title, fontsize=12)
-
-    axaz.legend(loc='upper right', fontsize=10)
-    axkz.legend(loc='upper right', fontsize=10)
-    axws.legend(loc='upper right', fontsize=10)
+    axw.plot(date,    nh, color='blue' , label='NH')
+    axw.plot(date,    sh, color='red'  , label='SH')
+    axw.plot(date, nh+sh, color='black', label='Global')
+    decolate(axw, r'$W \:\left(10^6 \: \mathrm{J \: m^{-2}}\right)$', '', date, 0., 1.7, 1, 0.2)
+    axw.legend(bbox_to_anchor=[0.5,-0.11], loc='upper center', borderaxespad=0, ncol=3)
+    #plot_w(figw, axw, w, date, title=r'Global Mean $W \:\left(10^6 \: \mathrm{J \: m^{-2}}\right)$')
+    figw.savefig('figs/JRA3Q_1980_2023_w_NSG_clim.png', dpi=350, bbox_inches='tight')
 
 
-mkgrph('./figs/gmean_1970_2022_clim', r'Global Mean Seazonal Variability ($\mathrm{10^6 \: J \: m^{-2}}$)', -90., 90.)
-mkgrph('./figs/NH_1970_2022_clim'   ,     r'NH Mean Seazonal Variability ($\mathrm{10^6 \: J \: m^{-2}}$)',   0., 90.)
-mkgrph('./figs/SH_1970_2022_clim'   ,     r'SH Mean Seazonal Variability ($\mathrm{10^6 \: J \: m^{-2}}$)', -90.,  0.)
+    ### C(AZ, KZ)
+    nh = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_c_az_kz.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=0, \
+                       range_north=90)
+    sh = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_c_az_kz.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=-90, \
+                       range_north=0)
+
+    figazkz = plt.figure(figsize=[8,4])
+    axazkz = figazkz.add_subplot(111)
+
+    axazkz.plot(date,    nh, color='blue' , label='NH')
+    axazkz.plot(date,    sh, color='red'  , label='SH')
+    axazkz.plot(date, nh+sh, color='black', label='Global')
+    decolate(axazkz, r'$C\left(A_Z, K_Z\right) \:\left(\mathrm{W \: m^{-2}}\right)$', '', date, 0., 2.2, 1, 0.3)
+    axazkz.legend(bbox_to_anchor=[0.5,-0.11], loc='upper center', borderaxespad=0, ncol=3)
+    #plot_c_az_kz(figazkz, axazkz, c_az_kz, date, title=r'Global Mean $C\left(A_Z, K_Z\right) \:\left(\mathrm{W \: m^{-2}}\right)$')
+    figazkz.savefig('figs/JRA3Q_1980_2023_c_az_kz_NSG_clim.png', dpi=350, bbox_inches='tight')
+
+
+    ### C(KZ, W)
+    nh = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_c_kz_w.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=0, \
+                       range_north=90)
+    sh = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_c_kz_w.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=-90, \
+                       range_north=0)
+
+    figkzw = plt.figure(figsize=[8,4])
+    axkzw = figkzw.add_subplot(111)
+
+    axkzw.plot(date,    nh, color='blue' , label='NH')
+    axkzw.plot(date,    sh, color='red'  , label='SH')
+    axkzw.plot(date, nh+sh, color='black', label='Global')
+    decolate(axkzw, r'$C\left(K_Z, W\right) \:\left(\mathrm{W \: m^{-2}}\right)$', '', date, -0.2, 1.2, 1, 0.2)
+    axkzw.legend(bbox_to_anchor=[0.5,-0.11], loc='upper center', borderaxespad=0, ncol=3)
+    #plot_c_kz_w(figkzw, axkzw, c_kz_w, date, title=r'Global Mean $C\left(K_Z, W\right) \:\left(\mathrm{W \: m^{-2}}\right)$')
+    figkzw.savefig('figs/JRA3Q_1980_2023_c_kz_w_NSG_clim.png', dpi=350, bbox_inches='tight')
+
+
+    ### QE
+    qe = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_qe.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=0, \
+                       range_north=90)
+
+    ttswr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ttswr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    ttlwr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ttlwr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    lrghr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_lrghr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     = ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    cnvhr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_cnvhr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    vdfhr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_vdfhr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    fignhqe = plt.figure(figsize=[8,4])
+    axnhqe = fignhqe.add_subplot(111)
+    plot_qe(fignhqe, axnhqe, qe, ttswr, ttlwr, lrghr, cnvhr, vdfhr, date, title=r'NH Mean $Q_E \:\left(\mathrm{W \: m^{-2}}\right)$')
+    fignhqe.savefig('figs/JRA3Q_1980_2023_qe_NH_clim.png', dpi=350, bbox_inches='tight')
+
+
+    qe = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_qe.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=-90, \
+                       range_north=0)
+
+    ttswr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ttswr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    ttlwr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ttlwr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    lrghr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_lrghr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     = ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    cnvhr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_cnvhr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    vdfhr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_vdfhr_qe.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    figshqe = plt.figure(figsize=[8,4])
+    axshqe = figshqe.add_subplot(111)
+    plot_qe(figshqe, axshqe, qe, ttswr, ttlwr, lrghr, cnvhr, vdfhr, date, title=r'SH Mean $Q_E \:\left(\mathrm{W \: m^{-2}}\right)$')
+    figshqe.savefig('figs/JRA3Q_1980_2023_qe_SH_clim.png', dpi=350, bbox_inches='tight')
+
+
+    ### QZ
+    qz = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_qz.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=0, \
+                       range_north=90)
+
+    ttswr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ttswr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    ttlwr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ttlwr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    lrghr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_lrghr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    cnvhr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_cnvhr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    vdfhr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_vdfhr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=0, \
+                          range_north=90)
+
+    fignhqz = plt.figure(figsize=[8,4])
+    axnhqz = fignhqz.add_subplot(111)
+    plot_qz(fignhqz, axnhqz, qz, ttswr, ttlwr, lrghr, cnvhr, vdfhr, date, title=r'NH Mean $Q_Z \:\left(\mathrm{W \: m^{-2}}\right)$')
+    fignhqz.savefig('figs/JRA3Q_1980_2023_qz_NH_clim.png', dpi=350, bbox_inches='tight')
+
+
+    qz = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_qz.dat', \
+                       recl   =4*ny, \
+                       rec    =1, \
+                       kind   =4, \
+                       endian ='LITTLE', \
+                       recstep=1, \
+                       ny     =ny, \
+                       nt     =nt, \
+                       latstep=1.25, \
+                       range_south=-90, \
+                       range_north=0)
+
+    ttswr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ttswr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    ttlwr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_ttlwr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    lrghr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_lrghr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    cnvhr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_cnvhr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    vdfhr = get_from_vint(fname  ='../../output/JRA3Q_1980_2023_ALL_VINT_vdfhr_qz.dat', \
+                          recl   =4*ny, \
+                          rec    =1, \
+                          kind   =4, \
+                          endian ='LITTLE', \
+                          recstep=1, \
+                          ny     =ny, \
+                          nt     =nt, \
+                          latstep=1.25, \
+                          range_south=-90, \
+                          range_north=0)
+
+    figshqz = plt.figure(figsize=[8,4])
+    axshqz = figshqz.add_subplot(111)
+    plot_qz(figshqz, axshqz, qz, ttswr, ttlwr, lrghr, cnvhr, vdfhr, date, title=r'SH Mean $Q_Z \:\left(\mathrm{W \: m^{-2}}\right)$')
+    figshqz.savefig('figs/JRA3Q_1980_2023_qz_SH_clim.png', dpi=350, bbox_inches='tight')
+
+
+
+
+separate()
+
 
 
 
